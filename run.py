@@ -84,7 +84,7 @@ if __name__=="__main__":
         wait_for_connection()
         sys.stdout.flush()
 
-        logger.debug(f"Wait {config.STARTUP_DELAY} second for the port to become available")
+        logger.debug(f"Wait {config.STARTUP_DELAY} seconds for the port to become available")
         time.sleep(config.STARTUP_DELAY)
 
         if config.EDIT_MOTD:
@@ -95,4 +95,4 @@ if __name__=="__main__":
         sys.stdout.flush()
 
         logger.debug(f"Wait {config.STARTUP_TIMER} seconds for the player to join")
-        time.sleep(cobfig.STARTUP_TIMER)
+        time.sleep(config.STARTUP_TIMER)
