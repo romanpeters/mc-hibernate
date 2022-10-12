@@ -21,6 +21,7 @@ def start_server():
     subprocess.run(command.split())
     logger.info("Started server")
 
+
 def stop_server():
     command = config.STOP_COMMAND
     try:
@@ -28,6 +29,7 @@ def stop_server():
     except subprocess.CalledProcessError:
         logger.warn(f"Failed to stop server, assuming Minecraft is not running")
     logger.info("Stopped server")
+
 
 def players_online() -> bool:
     """Check if there are any players online"""
@@ -41,6 +43,7 @@ def players_online() -> bool:
         if "players: 0" in str(status):
             return False
     return True
+
 
 def wait_for_connection():
     serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -61,9 +64,12 @@ def wait_for_connection():
 
 def wait_for_empty_server():
     while players_online():
-        logger.debug(f"Minecraft Server is active, sleeping for f{config.SHUTDOWN_TIMER} seconds")
+        logger.debug(
+            f"Minecraft Server is active, sleeping for f{config.SHUTDOWN_TIMER} seconds"
+        )
         time.sleep(config.SHUTDOWN_TIMER)
     logger.debug("Minecraft Server is not active")
+
 
 def edit_motd():
     for line in fileinput.input("server.properties", inplace=True):
@@ -71,7 +77,7 @@ def edit_motd():
             sys.stdout.write(f"motd=Server started at {time.strftime('%H:%M')}")
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
 
     # Start the main flow
     while True:
@@ -84,7 +90,9 @@ if __name__=="__main__":
         wait_for_connection()
         sys.stdout.flush()
 
-        logger.debug(f"Wait {config.STARTUP_DELAY} seconds for the port to become available")
+        logger.debug(
+            f"Wait {config.STARTUP_DELAY} seconds for the port to become available"
+        )
         time.sleep(config.STARTUP_DELAY)
 
         if config.EDIT_MOTD:
