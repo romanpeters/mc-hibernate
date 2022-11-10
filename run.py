@@ -36,14 +36,14 @@ if os.path.exists("blacklist.txt") and not whitelist:
 
 def start_server():
     logger.info("Starting server")
-    subprocess.call("./START.sh")
+    subprocess.call("./start.sh")
     logger.debug(f"Waiting {config.STARTUP_DELAY} seconds for port to become available")
     time.sleep(config.STARTUP_DELAY)
 
 
 def stop_server():
     logger.info("Stopping server")
-    subprocess.call("./STOP.sh")
+    subprocess.call("./stop.sh")
     logger.debug(
         f"Waiting {config.SHUTDOWN_DELAY} seconds for port to become available"
     )
