@@ -2,12 +2,13 @@
 
 Automatically start your Minecraft server when someone tries to join and shut it down when no one is online anymore.  
 
-This script spawns a service on the same port as the Minecraft server to listen for incoming connections and needs to run on the same host.
+This script needs to run on the same host as the Minecraft server. 
+When the Minecraft server is offline, it spawns a service on the same port to listen for incoming connections. 
 When a player tries to connect (read: loads Minecraft's multiplayer screen, containing this server), the script automatically starts the Minecraft server, which allows the player to connect after some seconds.
 
 1) Edit `start.sh.example` and rename it to `start.sh`
 1) Edit `start.sh.example` and rename it to `stop.sh`
-1) Make the .sh files executable: `chmod +x START.sh STOP.sh`
+1) Make the .sh files executable: `chmod +x start.sh stop.sh`
 1) `python3 run.py`
 
 ### start.sh
