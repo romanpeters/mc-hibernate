@@ -11,5 +11,5 @@ STARTUP_TIMER = 120
 SHUTDOWN_TIMER = 300
 
 # Change the motd to the start time
-EDIT_MOTD = True
+EDIT_MOTD = False
 SERVER_PROPERTIES = "/root/minecraft/server.properties"
