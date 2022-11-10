@@ -1,0 +1,2 @@
+# add whitelisted IP addresses here
+# note that the blacklist will be if ignored this file is not empty

@@ -3,6 +3,7 @@ This script automatically starts and stops a Minecraft server.
 If someone tries to join the server is started.
 If no players are online anymore the server is stopped.
 """
+import os
 import socket
 import time
 import subprocess
@@ -14,22 +15,39 @@ import mcstatus
 
 
 logger = logging.getLogger()
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=config.LOGGING)
 
 server = mcstatus.JavaServer.lookup(f"{config.HOST}:{config.PORT}")
 
+whitelist = []
+blacklist = []
+if os.path.exists("whitelist.txt"):
+    with open("whitelist.txt") as f:
+        whitelist = [l.strip() for l in f.readlines() if not l.startswith("#")]
+    if whitelist:
+        logger.info(f"Whitelisted addresses: {whitelist}")
+
+if os.path.exists("blacklist.txt") and not whitelist:
+    with open("blacklist.txt") as f:
+        blacklist = [l.strip() for l in f.readlines() if not l.startswith("#")]
+    if blacklist:
+        logger.info(f"Blacklisted addresses: {blacklist}")
+
 
 def start_server():
+    logger.info("Starting server")
     subprocess.call("./START.sh")
-    logger.info("Started server")
+    logger.debug(f"Waiting {config.STARTUP_DELAY} seconds for port to become available")
+    time.sleep(config.STARTUP_DELAY)
 
 
 def stop_server():
-    try:
-        subprocess.call("./STOP.sh")
-    except subprocess.CalledProcessError as e:
-        logger.warning(e)  # already stopped?
-    logger.info("Stopped server")
+    logger.info("Stopping server")
+    subprocess.call("./STOP.sh")
+    logger.debug(
+        f"Waiting {config.SHUTDOWN_DELAY} seconds for port to become available"
+    )
+    time.sleep(config.SHUTDOWN_DELAY)
 
 
 def server_status() -> int:
@@ -38,8 +56,8 @@ def server_status() -> int:
         logger.info(f"{status.players.online} players online")
         return status.players.online
     except Exception as e:
-        logger.warning(e)
-        logger.warning(f"Failed to check mcstatus, assuming Minecraft is not running")
+        logger.debug(e)
+        logger.info(f"Failed to check mcstatus, assuming Minecraft is not running")
         return -1
 
 
@@ -49,15 +67,21 @@ def wait_for_connection():
     serversocket.listen(5)
 
     logger.info("Waiting for connection...")
-    (clientsocket, address) = serversocket.accept()
 
-    logger.info(f"Got a connection from {address}")
+    address = None
+    while not address:
+        (clientsocket, address) = serversocket.accept()
+        if (not whitelist and address[0] not in blacklist) or (address[0] in whitelist):
+            logger.info(f"Got a connection from {address}")
 
-    clientsocket.send("Server is starting".encode("utf-8"))
+            clientsocket.send("Server is starting".encode("utf-8"))
 
-    logger.debug("Closing sockets")
-    clientsocket.close()
-    serversocket.close()
+            logger.debug("Closing sockets")
+            clientsocket.close()
+            serversocket.close()
+        else:
+            logger.warning(f"Ignoring IP {address[0]}")
+            address = None
 
 
 def wait_for_empty_server():
@@ -97,11 +121,6 @@ if __name__ == "__main__":
 
         wait_for_connection()
         sys.stdout.flush()
-
-        logger.debug(
-            f"Wait {config.STARTUP_DELAY} seconds for the port to become available"
-        )
-        time.sleep(config.STARTUP_DELAY)
 
         if config.EDIT_MOTD:
             logger.debug("Editing motd")
